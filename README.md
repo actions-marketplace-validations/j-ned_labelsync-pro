@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/j-ned/labelsync-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/j-ned/labelsync-pro/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![npm](https://img.shields.io/npm/v/labelsync-pro)](https://www.npmjs.com/package/labelsync-pro)
 
 [English](#english-version) | [Français](#version-française)
 
@@ -113,14 +114,14 @@ You need Node.js 22 or later, and to be logged in with `gh auth login` (or have 
 
 ```bash
 # Preview: nothing is changed without --apply
-npx github:j-ned/labelsync-pro --repo me/my-app \
+npx labelsync-pro --repo me/my-app \
   --config https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-en.json
 
 # Apply to all your repositories
-npx github:j-ned/labelsync-pro --scope all --config .github/labels.json --apply
+npx labelsync-pro --scope all --config .github/labels.json --apply
 
 # Check a config file
-npx github:j-ned/labelsync-pro validate .github/labels.json
+npx labelsync-pro validate .github/labels.json
 ```
 
 `--help` lists every option.
@@ -318,14 +319,14 @@ Il faut Node.js 22 ou plus, et être connecté avec `gh auth login` (ou avoir un
 
 ```bash
 # Aperçu : rien n'est modifié sans --apply
-npx github:j-ned/labelsync-pro --repo moi/mon-app \
+npx labelsync-pro --repo moi/mon-app \
   --config https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-fr.json
 
 # Appliquer sur tous vos repositories
-npx github:j-ned/labelsync-pro --scope all --config .github/labels.json --apply
+npx labelsync-pro --scope all --config .github/labels.json --apply
 
 # Vérifier un fichier de config
-npx github:j-ned/labelsync-pro validate .github/labels.json
+npx labelsync-pro validate .github/labels.json
 ```
 
 Exemple de sortie :
