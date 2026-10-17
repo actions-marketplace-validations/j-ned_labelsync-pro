@@ -135,7 +135,7 @@ export async function run(config, options, { client, log }) {
     exclude: [...options.exclude, ...config.exclude],
   });
 
-  log.info(`${config.labels.length} labels → ${targets.length} repositor${targets.length === 1 ? 'y' : 'ies'}` +
+  log.info(`${config.labels.length} labels, ${targets.length} repositor${targets.length === 1 ? 'y' : 'ies'}` +
     `${options.dryRun ? ' (dry run)' : ''}${options.prune ? ' (prune on)' : ''}`);
   for (const { repo, reason } of skipped) log.info(`skip ${repo} (${reason})`);
 

@@ -81,7 +81,7 @@ export function createClient({
 
       const payload = await res.json().catch(() => ({}));
       const details = Array.isArray(payload.errors) ? payload.errors.map((/** @type {any} */ e) => e.message || e.code).filter(Boolean) : [];
-      const message = [payload.message || res.statusText, ...details].join(' — ');
+      const message = [payload.message || res.statusText, ...details].join(': ');
       throw new GitHubError(`${method} ${new URL(target).pathname}: ${res.status} ${message}`, res.status);
     }
   }

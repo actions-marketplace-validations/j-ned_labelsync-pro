@@ -33,13 +33,13 @@ export function totals(report) {
  */
 export function renderSummary(report) {
   const { repositories, failed, changes } = totals(report);
-  const mode = report.dryRun ? ' — dry run, nothing was written' : '';
+  const mode = report.dryRun ? ' (dry run, nothing was written)' : '';
   const lines = [
     `## 🏷️ LabelSync${mode}`,
     '',
-    `**${repositories}** repositor${repositories === 1 ? 'y' : 'ies'} · **${changes}** change${changes === 1 ? '' : 's'}` +
-      `${report.dryRun ? ' planned' : ''} · **${failed}** failure${failed === 1 ? '' : 's'}` +
-      ` · prune ${report.prune ? 'on' : 'off'}`,
+    `**${repositories}** repositor${repositories === 1 ? 'y' : 'ies'}, **${changes}** change${changes === 1 ? '' : 's'}` +
+      `${report.dryRun ? ' planned' : ''}, **${failed}** failure${failed === 1 ? '' : 's'}` +
+      `, prune ${report.prune ? 'on' : 'off'}`,
     '',
   ];
 
@@ -83,7 +83,7 @@ export function renderSummary(report) {
     lines.push(
       `<details><summary>${report.skipped.length} repositor${report.skipped.length === 1 ? 'y' : 'ies'} skipped</summary>`,
       '',
-      ...report.skipped.map((s) => `- \`${s.repo}\` — ${s.reason}`),
+      ...report.skipped.map((s) => `- \`${s.repo}\`: ${s.reason}`),
       '',
       '</details>',
       '',

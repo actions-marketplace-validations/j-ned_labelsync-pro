@@ -156,7 +156,7 @@ describe('createClient', () => {
       baseUrl: 'https://api.test',
       fetchImpl: async () => (calls++, json({ message: 'Validation Failed', errors: [{ code: 'already_exists' }] }, { status: 422 })),
     });
-    await assert.rejects(client.createLabel('me/a', { name: 'x', color: 'aaaaaa', description: '' }), /422 Validation Failed — already_exists/);
+    await assert.rejects(client.createLabel('me/a', { name: 'x', color: 'aaaaaa', description: '' }), /422 Validation Failed: already_exists/);
     assert.equal(calls, 1);
   });
 });

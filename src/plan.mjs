@@ -88,7 +88,7 @@ export function describeOp(op) {
       return `- delete  "${op.name}"`;
     case 'update': {
       const parts = [];
-      if (op.changes.name !== undefined) parts.push(`→ "${op.changes.name}"`);
+      if (op.changes.name !== undefined) parts.push(`to "${op.changes.name}"`);
       if (op.changes.color !== undefined) parts.push(`color #${op.changes.color}`);
       if (op.changes.description !== undefined) parts.push('description');
       const verb = isRename(op) ? 'rename' : 'update';
