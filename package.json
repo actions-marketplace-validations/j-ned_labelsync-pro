@@ -1,0 +1,32 @@
+{
+  "name": "labelsync-pro",
+  "version": "2.0.0",
+  "description": "Syncs the same set of labels on all your GitHub repositories. GitHub Action and CLI.",
+  "license": "MIT",
+  "author": "j-ned",
+  "repository": "github:j-ned/labelsync-pro",
+  "type": "module",
+  "bin": {
+    "labelsync": "src/cli.mjs"
+  },
+  "files": [
+    "src",
+    "schema",
+    "presets"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "validate": "node src/cli.mjs validate presets/*.json"
+  },
+  "keywords": [
+    "github",
+    "github-actions",
+    "labels",
+    "label-sync",
+    "automation",
+    "cli"
+  ]
+}
