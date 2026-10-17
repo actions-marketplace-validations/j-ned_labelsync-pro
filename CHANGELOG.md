@@ -13,7 +13,7 @@ LabelSync Pro is now a GitHub Action (`uses: j-ned/labelsync-pro@v2`) and a CLI.
 - French and English presets.
 - Job summary with one row per repository and the list of changes. Outputs `repositories`, `changes`, `failed`, `report`.
 - Retries on rate limits and server errors. A failing repository no longer stops the others.
-- CLI: `npx github:j-ned/labelsync-pro`, dry run by default, `--apply` to write, `validate` to check a config.
+- CLI: `npx labelsync-pro`, dry run by default, `--apply` to write, `validate` to check a config.
 
 ### Changed
 
