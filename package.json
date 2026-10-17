@@ -4,7 +4,14 @@
   "description": "Syncs the same set of labels on all your GitHub repositories. GitHub Action and CLI.",
   "license": "MIT",
   "author": "j-ned",
-  "repository": "github:j-ned/labelsync-pro",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j-ned/labelsync-pro.git"
+  },
+  "homepage": "https://github.com/j-ned/labelsync-pro#readme",
+  "bugs": {
+    "url": "https://github.com/j-ned/labelsync-pro/issues"
+  },
   "type": "module",
   "bin": {
     "labelsync": "src/cli.mjs"
