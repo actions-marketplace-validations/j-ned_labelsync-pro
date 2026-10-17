@@ -1,0 +1,42 @@
+# Dogfooding: syncs the French preset on every repository of j-ned, every day.
+name: Sync labels
+
+on:
+  schedule:
+    # 19:15 UTC daily (20:15 Paris winter / 21:15 summer)
+    - cron: "15 19 * * *"
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Repositories to sync
+        type: choice
+        options: [all, latest]
+        default: all
+      dry_run:
+        description: Only report what would change
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: labelsync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: 🏷️ Sync labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./
+        with:
+          token: ${{ secrets.LABELGITHUB_TOKEN }}
+          config: presets/emoji-fr.json
+          scope: ${{ inputs.scope || 'all' }}
+          dry-run: ${{ inputs.dry_run || false }}
+          prune: true
+          exclude: j-ned/.gitworkflow
