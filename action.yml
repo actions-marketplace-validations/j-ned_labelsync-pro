@@ -1,0 +1,58 @@
+name: LabelSync Pro
+description: Keep one label set in sync across all your repositories — minimal diffs, renames that keep issues labelled, dry run.
+author: j-ned
+
+branding:
+  icon: tag
+  color: purple
+
+inputs:
+  token:
+    description: >
+      Token used to call the GitHub API. The default GITHUB_TOKEN only reaches the current repository;
+      use a fine-grained PAT (Metadata: read, Issues: read and write) for scope all/latest.
+    default: ${{ github.token }}
+  config:
+    description: Path (in the workspace) or https URL of the label config.
+    default: .github/labels.json
+  scope:
+    description: "Which repositories to sync: current, all (every non-archived repository of owner) or latest (the newest one)."
+    default: current
+  repositories:
+    description: Explicit list of owner/name repositories (newline or comma separated). Overrides scope.
+    default: ''
+  owner:
+    description: User or organization listed by scope all/latest. Defaults to the owner of the token.
+    default: ''
+  exclude:
+    description: Repositories never touched (owner/name, newline or comma separated). Adds to the config "exclude" list.
+    default: ''
+  skip-topic:
+    description: Repositories with this topic are skipped. Empty to disable.
+    default: no-labelsync
+  include-forks:
+    description: Also sync forks when using scope all/latest.
+    default: 'false'
+  prune:
+    description: Delete labels that are not in the config. Deleting a label removes it from every issue and pull request.
+    default: 'false'
+  dry-run:
+    description: Only report what would change.
+    default: 'false'
+  concurrency:
+    description: Repositories processed in parallel.
+    default: '4'
+
+outputs:
+  repositories:
+    description: Number of repositories processed.
+  changes:
+    description: Number of label operations applied (or planned in dry run).
+  failed:
+    description: Number of repositories that failed to sync.
+  report:
+    description: Full JSON report (per repository operations, skipped repositories).
+
+runs:
+  using: node24
+  main: src/main.mjs

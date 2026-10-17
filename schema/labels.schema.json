@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/j-ned/labelsync-pro/master/schema/labels.schema.json",
+  "title": "LabelSync Pro configuration",
+  "description": "Labels synced by LabelSync Pro. Either an object { labels, exclude } or, for v1 compatibility, a bare array of labels.",
+  "oneOf": [
+    { "$ref": "#/$defs/Config" },
+    { "$ref": "#/$defs/Labels" }
+  ],
+  "$defs": {
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["labels"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "labels": { "$ref": "#/$defs/Labels" },
+        "exclude": {
+          "description": "Repositories never touched, as owner/name.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$" }
+        }
+      }
+    },
+    "Labels": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Label" }
+    },
+    "Label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "color"],
+      "properties": {
+        "name": {
+          "description": "Label name. Matched case-insensitively, like GitHub does.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "color": {
+          "description": "Hex color, with or without a leading #.",
+          "type": "string",
+          "pattern": "^#?[0-9a-fA-F]{6}$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "aliases": {
+          "description": "Previous names of this label. An existing label with one of these names is renamed in place, so issues and pull requests keep it.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
