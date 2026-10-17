@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 🧪 Tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+      - name: Validate presets
+        run: npm run validate
+
+  action:
+    name: 🏷️ Action dry run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v5
+      - id: labelsync
+        uses: ./
+        with:
+          config: presets/emoji-fr.json
+          dry-run: true
+          prune: true
+      - name: Check outputs
+        env:
+          REPOSITORIES: ${{ steps.labelsync.outputs.repositories }}
+          FAILED: ${{ steps.labelsync.outputs.failed }}
+        run: |
+          echo "repositories=$REPOSITORIES failed=$FAILED"
+          test "$REPOSITORIES" = 1
+          test "$FAILED" = 0
