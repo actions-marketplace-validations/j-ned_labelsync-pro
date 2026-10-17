@@ -7,11 +7,12 @@
 
 ![Labels synchronisés par LabelSync Pro](screenshot/label_1.png)
 
----
+A GitHub Action and CLI that keeps the same labels on all your repositories —
+with minimal diffs, renames that keep your issues labelled, and a dry run before anything changes.
 
 # English version
 
-## Description
+[Quick start](#-quick-start) · [All your repos](#-sync-every-repository-you-own) · [CLI](#-try-it-from-your-terminal) · [Config](#-configuration) · [Inputs](#%EF%B8%8F-inputs--outputs) · [🇫🇷 Français](README.fr.md)
 
 LabelSync Pro applies the same set of labels to your GitHub repositories. You write your labels in a JSON file, and the tool applies them to the current repository, to all of your repositories, or to the repositories of an organization.
 
@@ -212,11 +213,12 @@ npm run validate    # check the presets
 
 [MIT](LICENSE)
 
----
+No install needed — Node.js 22+ and either `gh auth login` or a `GITHUB_TOKEN`:
 
 # Version française
 
-## Description
+# Apply to every repository you own
+npx github:j-ned/labelsync-pro --scope all --config .github/labels.json --apply
 
 LabelSync Pro synchronise un même jeu de labels sur vos repositories GitHub. Vous décrivez vos labels dans un fichier JSON, et l'outil les applique au repository courant, à tous vos repositories ou à ceux d'une organisation.
 
