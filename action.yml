@@ -1,5 +1,5 @@
 name: LabelSync Pro
-description: Keep one label set in sync across all your repositories — minimal diffs, renames that keep issues labelled, dry run.
+description: Syncs the same set of labels on all your GitHub repositories, with dry run and in-place renames.
 author: j-ned
 
 branding:

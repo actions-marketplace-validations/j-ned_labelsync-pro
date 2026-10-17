@@ -9,7 +9,7 @@ import { run } from './labelsync.mjs';
 import { consoleLogger } from './log.mjs';
 import { totals } from './report.mjs';
 
-const HELP = `labelsync — sync one GitHub label set across your repositories
+const HELP = `labelsync: sync one GitHub label set across your repositories
 
 Usage
   labelsync [options]                 preview changes (dry run, the default)

@@ -1,7 +1,7 @@
 {
   "name": "labelsync-pro",
   "version": "2.0.0",
-  "description": "Keep one GitHub label set in sync across all your repositories — GitHub Action and CLI.",
+  "description": "Syncs the same set of labels on all your GitHub repositories. GitHub Action and CLI.",
   "license": "MIT",
   "author": "j-ned",
   "repository": "github:j-ned/labelsync-pro",

@@ -1,48 +1,41 @@
-<div align="center">
-
-# 🏷️ LabelSync Pro
-
-**One label set. Every repository. Always in sync.**
-
-A GitHub Action and CLI that keeps the same labels on all your repositories —
-with minimal diffs, renames that keep your issues labelled, and a dry run before anything changes.
+# LabelSync Pro
 
 [![CI](https://github.com/j-ned/labelsync-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/j-ned/labelsync-pro/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
-![Node 24](https://img.shields.io/badge/runtime-node24-339933?logo=node.js&logoColor=white)
 
-[Quick start](#-quick-start) · [All your repos](#-sync-every-repository-you-own) · [CLI](#-try-it-from-your-terminal) · [Config](#-configuration) · [Inputs](#%EF%B8%8F-inputs--outputs) · [🇫🇷 Français](README.fr.md)
+[English](#english-version) | [Français](#version-française)
 
-<img src="screenshot/label_1.png" alt="A repository label list after LabelSync (French preset): Revert, Refactor, A11y, CI/CD, Perf, Validation, Feature, Cache, API, Style, Animations" width="760">
+![Labels synchronisés par LabelSync Pro](screenshot/label_1.png)
 
-</div>
+---
 
-## Why
+# English version
 
-Every new repository starts with GitHub's nine default labels. After a few projects you end up with
-`bug` here, `🐛 Fix` there, `type: bug` somewhere else — and filters, boards and release notes that
-work in one repo and not the next.
+## Description
 
-LabelSync Pro treats your labels as code: describe them once in a JSON file, and it brings
-**every repository** in line — the current one, all the ones you own, or a whole organization.
+LabelSync Pro applies the same set of labels to your GitHub repositories. You write your labels in a JSON file, and the tool applies them to the current repository, to all of your repositories, or to the repositories of an organization.
 
-## ✨ Highlights
+It comes in two forms:
 
-- **Minimal diffs** — compares first, then only calls the API for what actually changed. An up-to-date repo costs one request.
-- **Renames that keep history** — list a label's old names in `aliases`: `bug` becomes `🐛 Fix` *in place*, so every issue and PR keeps it. No delete-and-recreate.
-- **Safe by default** — labels that aren't in your config are kept unless you turn on `prune`. `dry-run` shows the exact plan first.
-- **One repo or hundreds** — `current`, `all`, or `latest` repository of a user or organization, processed in parallel with automatic retries on rate limits.
-- **Opt-out per repo** — add the `no-labelsync` topic, or list it in `exclude`.
-- **Readable reports** — a job summary with a per-repository table and a diff of every change.
-- **Also a CLI** — preview or apply the same config from your terminal with your `gh` login.
-- **Zero dependencies, no build step** — plain Node.js 24, small enough to read in ten minutes.
+- a GitHub Action, used in a workflow;
+- a command you can run from your terminal.
 
-## 🚀 Quick start
+## Features
 
-Sync the labels of the repository the workflow runs in.
+- Only labels that differ are changed. A repository that is already up to date costs a single API call.
+- Old names of a label go in `aliases`. If a repository still has `bug`, it is renamed to `🐛 Fix` instead of being deleted and created again, so issues keep it.
+- Labels that are not in the config are kept unless you turn on `prune`.
+- `dry-run` shows the planned changes without applying them.
+- Archived repositories, forks, repositories you can't write to and repositories with the `no-labelsync` topic are skipped.
+- A summary is added to the job: one row per repository and the list of changes.
+- If one repository fails, the others are still processed.
+- No dependencies and no build step: the code runs as is on Node.js 24.
 
-**1. Describe your labels** in `.github/labels.json`:
+## Quick start
+
+To sync the labels of the repository the workflow runs in.
+
+1. Create `.github/labels.json`:
 
 ```json
 {
@@ -55,9 +48,9 @@ Sync the labels of the repository the workflow runs in.
 }
 ```
 
-The `$schema` line gives you autocompletion and validation in VS Code, WebStorm and friends.
+The `$schema` line gives you autocompletion and error checking in VS Code or WebStorm.
 
-**2. Add a workflow**, e.g. `.github/workflows/labels.yml`:
+2. Add a workflow, for example `.github/workflows/labels.yml`:
 
 ```yaml
 name: Sync labels
@@ -78,23 +71,21 @@ jobs:
       - uses: j-ned/labelsync-pro@v2
 ```
 
-That's it: the default `GITHUB_TOKEN` is enough for the current repository.
+The `GITHUB_TOKEN` provided by GitHub is enough for the current repository.
 
-## 🌍 Sync every repository you own
+## Sync all your repositories
 
-Keep one "control" repository with your config and a schedule. It needs a token that can reach
-your other repositories:
+Keep one repository that holds your config and runs the sync on a schedule. It needs a token with access to your other repositories:
 
-1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with
-   **Repository access: All repositories** and permissions **Metadata: Read** + **Issues: Read and write**.
-2. Save it as a repository secret, e.g. `LABELSYNC_TOKEN`.
+1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with **Repository access: All repositories** and the **Metadata: Read** and **Issues: Read and write** permissions.
+2. Add it as a repository secret, for example `LABELSYNC_TOKEN`.
 3. Add the workflow:
 
 ```yaml
 name: Sync labels everywhere
 on:
   schedule:
-    - cron: "0 6 * * *"          # every morning
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -108,140 +99,333 @@ jobs:
       - uses: j-ned/labelsync-pro@v2
         with:
           token: ${{ secrets.LABELSYNC_TOKEN }}
-          scope: all                # or: latest — only the newest repository
-          # owner: my-org           # an organization instead of your own account
+          scope: all              # or latest for the most recently created repository
+          # owner: my-org         # for an organization
           exclude: |
-            me/some-fork-i-care-about
+            me/repo-to-skip
 ```
 
-Archived repositories, forks (unless `include-forks: true`), repositories you can't write to,
-and repositories tagged with the `no-labelsync` topic are skipped automatically.
+Run it once with `dry-run: true` and check the job summary before letting it change anything.
 
-> [!TIP]
-> Run it once with `dry-run: true` and read the job summary before letting it write anything.
+## From the terminal
 
-## 💻 Try it from your terminal
-
-No install needed — Node.js 22+ and either `gh auth login` or a `GITHUB_TOKEN`:
+You need Node.js 22 or later, and to be logged in with `gh auth login` (or have a `GITHUB_TOKEN`).
 
 ```bash
-# Preview: nothing is written without --apply
+# Preview: nothing is changed without --apply
 npx github:j-ned/labelsync-pro --repo me/my-app \
   --config https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-en.json
 
-# Apply to every repository you own
+# Apply to all your repositories
 npx github:j-ned/labelsync-pro --scope all --config .github/labels.json --apply
 
 # Check a config file
 npx github:j-ned/labelsync-pro validate .github/labels.json
 ```
 
-```text
-🏷️ me/my-app
-[dry-run] ~ rename  "bug" → "🐛 Fix", color #dc3545, description
-[dry-run] ~ rename  "enhancement" → "✨ Feature", color #198754, description
-[dry-run] + create  "🚑 Hotfix" #b22222
-...
-1 repository, 29 change(s) planned, 0 failed
-Dry run: nothing was written. Re-run with --apply to apply.
-```
+`--help` lists every option.
 
-Run `npx github:j-ned/labelsync-pro --help` for every option.
-
-## 🧩 Configuration
+## Configuration
 
 ```jsonc
 {
   "$schema": "https://raw.githubusercontent.com/j-ned/labelsync-pro/master/schema/labels.schema.json",
   "labels": [
     {
-      "name": "🐛 Fix",              // required, ≤ 50 characters, matched case-insensitively
-      "color": "dc3545",             // required, hex with or without "#"
-      "description": "Bug fix",      // optional, ≤ 100 characters
-      "aliases": ["bug", "type: bug"] // optional, previous names to rename in place
+      "name": "🐛 Fix",               // required, 50 characters max
+      "color": "dc3545",              // required, with or without #
+      "description": "Bug fix",       // optional, 100 characters max
+      "aliases": ["bug", "type: bug"] // optional, old names to rename
     }
   ],
-  "exclude": ["me/legacy-repo"]       // optional, repositories never touched
+  "exclude": ["me/old-repo"]          // optional, repositories never changed
 }
 ```
 
-- A bare array of labels (the v1 format) is still accepted.
-- The config is validated before any API call, and every problem is reported at once
-  (duplicate names, colors, lengths, collisions between names and aliases…).
-- `config` can also be an **https URL**, so several control repositories can share one preset.
+- Names are compared without case, like GitHub does.
+- The old format (a plain array of labels) still works.
+- The config is checked before any API call, and all errors are shown at once.
+- `config` also accepts an https URL, so several repositories can share the same file.
 
 ### Presets
 
-Two ready-to-use sets of 29 emoji labels (feature, fix, hotfix, refactor, CI/CD, a11y, perf, security, tests…),
-with aliases that convert GitHub's default labels:
+Two sets of 29 labels are included. They contain aliases that convert the labels GitHub creates by default (`bug`, `enhancement`, `documentation`).
 
-| Preset | Use it with |
+| Preset | `config` value |
 |---|---|
-| [`presets/emoji-en.json`](presets/emoji-en.json) | `config: https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-en.json` |
-| [`presets/emoji-fr.json`](presets/emoji-fr.json) | `config: https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-fr.json` |
+| [`presets/emoji-en.json`](presets/emoji-en.json) | `https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-en.json` |
+| [`presets/emoji-fr.json`](presets/emoji-fr.json) | `https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-fr.json` |
 
-<img src="screenshot/label_2.png" alt="More labels from the French preset: Mock, Build, Fix, Docs, Dependencies, Update, Debug, Security, Auth, UI/UX, Database, Release, Hotfix, Migration, Chore, State Management, Test, Cleanup" width="640">
-
-## ⚙️ Inputs & outputs
+## Inputs and outputs
 
 | Input | Default | Description |
 |---|---|---|
-| `token` | `${{ github.token }}` | Token used for the API. Use a PAT for `scope: all` / `latest`. |
-| `config` | `.github/labels.json` | Path in the workspace, or https URL. |
-| `scope` | `current` | `current`, `all` (every non-archived repository of `owner`) or `latest` (the newest one). |
-| `repositories` | | Explicit `owner/name` list (newline or comma separated). Overrides `scope`. |
-| `owner` | token's user | User or organization listed by `all` / `latest`. |
-| `exclude` | | Repositories never touched. Adds to the config's `exclude`. |
-| `skip-topic` | `no-labelsync` | Repositories with this topic are skipped. Empty to disable. |
+| `token` | `${{ github.token }}` | Token used for the API. A PAT is needed for `scope: all` or `latest`. |
+| `config` | `.github/labels.json` | Path in the repository, or https URL. |
+| `scope` | `current` | `current`, `all` (every non-archived repository of `owner`) or `latest` (the most recently created). |
+| `repositories` | | List of `owner/name` repositories, separated by commas or new lines. Replaces `scope`. |
+| `owner` | token owner | User or organization to go through with `all` or `latest`. |
+| `exclude` | | Repositories never changed, added to the config's `exclude`. |
+| `skip-topic` | `no-labelsync` | Repositories with this topic are skipped. Leave empty to disable. |
 | `include-forks` | `false` | Also sync forks. |
-| `prune` | `false` | Delete labels that aren't in the config. |
-| `dry-run` | `false` | Only report what would change. |
-| `concurrency` | `4` | Repositories processed in parallel. |
+| `prune` | `false` | Delete labels that are not in the config. |
+| `dry-run` | `false` | Show the changes without applying them. |
+| `concurrency` | `4` | Number of repositories processed in parallel. |
 
 | Output | Description |
 |---|---|
 | `repositories` | Number of repositories processed. |
-| `changes` | Label operations applied (or planned in a dry run). |
-| `failed` | Repositories that failed. The step fails if this isn't `0`, after every repository has been tried. |
-| `report` | Full JSON report, for your own follow-up steps. |
+| `changes` | Number of changes applied, or planned in dry run. |
+| `failed` | Number of repositories that failed. The step fails if this is not 0. |
+| `report` | Full report as JSON. |
 
-## 🛡️ How it stays safe
+## About `prune`
 
-1. **Validate** the config — nothing is sent if it's invalid.
-2. **Read** the repository's labels, then **plan**: match each label by name (case-insensitive), then by alias.
-3. **Apply** only the difference — renames and updates first, then creations, then deletions (only with `prune`).
+Deleting a label removes it from every issue and pull request that had it. That is why `prune` is off by default. Before turning it on, add the labels your tools create to your config, for example `dependencies` for Dependabot, otherwise they will be created and deleted again on every run.
 
-> [!WARNING]
-> Deleting a label removes it from every issue and pull request that had it. That's why `prune` is off by default.
-> Before enabling it, add the labels your tools create to the config — Dependabot's `dependencies`, for instance, or it will come back on its next run.
+## Upgrading from v1
 
-A failure on one repository (missing permission, archived meanwhile…) is reported and doesn't stop the others.
-
-## ⬆️ Upgrading from v1
-
-v1 was a reusable workflow (`.github/workflows/manage-labels.yml`). v2 is a regular action:
+v1 was a reusable workflow. v2 is a regular action, used in a step after `actions/checkout`.
 
 | v1 | v2 |
 |---|---|
-| `uses: j-ned/labelsync-pro/.github/workflows/manage-labels.yml@master` | `uses: j-ned/labelsync-pro@v2` in a step, after `actions/checkout` |
-| `mode: all` / `latest` | `scope: all` / `latest` |
+| `uses: j-ned/labelsync-pro/.github/workflows/manage-labels.yml@master` | `uses: j-ned/labelsync-pro@v2` |
+| `mode` | `scope` |
 | `dry_run` | `dry-run` |
 | `labels_path` | `config` |
-| `exclude_path` + `exclude.json` | `exclude` input, or `"exclude"` in the config |
-| Always deleted unknown labels | `prune: true` to keep that behaviour |
-| Forks were synced | `include-forks: true` to keep that behaviour |
+| `exclude_path` and `exclude.json` | `exclude` input, or `exclude` key in the config |
+| unknown labels were always deleted | `prune: true` keeps that behavior |
+| forks were synced | `include-forks: true` keeps that behavior |
 
-Your existing `labels.json` array works as is.
+Your existing `labels.json` works without changes.
 
-## 🤝 Contributing
+## Contributing
 
-Issues and pull requests are welcome. The code is plain ES modules with JSDoc types, no dependencies:
+Issues and pull requests are welcome.
 
 ```bash
-npm test            # node --test
+npm test            # run the tests
 npm run validate    # check the presets
 ```
 
-## 📄 License
+## License
 
-[MIT](LICENSE) © j-ned
+[MIT](LICENSE)
+
+---
+
+# Version française
+
+## Description
+
+LabelSync Pro synchronise un même jeu de labels sur vos repositories GitHub. Vous décrivez vos labels dans un fichier JSON, et l'outil les applique au repository courant, à tous vos repositories ou à ceux d'une organisation.
+
+Il existe sous deux formes :
+
+- une GitHub Action, à utiliser dans un workflow ;
+- une commande à lancer depuis votre terminal.
+
+## Fonctionnalités
+
+- Seuls les labels qui diffèrent sont modifiés. Un repository déjà à jour ne coûte qu'un appel à l'API.
+- Les anciens noms d'un label se déclarent dans `aliases`. Si un repository a encore `bug`, il est renommé en `🐛 Fix` au lieu d'être supprimé puis recréé, et les issues qui l'avaient le gardent.
+- Les labels absents de la config sont conservés, sauf si vous activez `prune`.
+- Le mode `dry-run` affiche les changements prévus sans rien modifier.
+- Les repositories archivés, les forks, ceux sur lesquels vous n'avez pas les droits d'écriture et ceux qui ont le topic `no-labelsync` sont ignorés.
+- Un résumé est ajouté au job : un tableau par repository et la liste des changements.
+- Si un repository échoue, les autres sont quand même traités.
+- Aucune dépendance et pas d'étape de build : le code tourne directement sur Node.js 24.
+
+## Démarrage rapide
+
+Pour synchroniser les labels du repository dans lequel tourne le workflow.
+
+1. Créez `.github/labels.json` :
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/j-ned/labelsync-pro/master/schema/labels.schema.json",
+  "labels": [
+    { "name": "🐛 Fix", "color": "dc3545", "description": "Correction de bugs", "aliases": ["bug"] },
+    { "name": "✨ Feature", "color": "198754", "description": "Nouvelle fonctionnalité", "aliases": ["enhancement"] },
+    { "name": "📖 Docs", "color": "17a2b8", "description": "Documentation", "aliases": ["documentation"] }
+  ]
+}
+```
+
+La ligne `$schema` permet à VS Code ou WebStorm de proposer l'autocomplétion et de signaler les erreurs.
+
+2. Ajoutez un workflow, par exemple `.github/workflows/labels.yml` :
+
+```yaml
+name: Sync labels
+on:
+  push:
+    branches: [main]
+    paths: [.github/labels.json]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: j-ned/labelsync-pro@v2
+```
+
+Le `GITHUB_TOKEN` fourni par GitHub suffit pour le repository courant.
+
+## Synchroniser tous vos repositories
+
+Gardez un repository qui contient votre config et lance la synchronisation à heure fixe. Il a besoin d'un token qui a accès à vos autres repositories :
+
+1. Créez un [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) avec **Repository access : All repositories** et les permissions **Metadata : Read** et **Issues : Read and write**.
+2. Ajoutez-le comme secret du repository, par exemple `LABELSYNC_TOKEN`.
+3. Ajoutez le workflow :
+
+```yaml
+name: Sync labels everywhere
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: j-ned/labelsync-pro@v2
+        with:
+          token: ${{ secrets.LABELSYNC_TOKEN }}
+          scope: all              # ou latest pour le dernier repository créé
+          # owner: mon-org        # pour une organisation
+          exclude: |
+            moi/repo-a-ignorer
+```
+
+Lancez-le une première fois avec `dry-run: true` et lisez le résumé du job avant de le laisser modifier quoi que ce soit.
+
+## Depuis le terminal
+
+Il faut Node.js 22 ou plus, et être connecté avec `gh auth login` (ou avoir un `GITHUB_TOKEN`).
+
+```bash
+# Aperçu : rien n'est modifié sans --apply
+npx github:j-ned/labelsync-pro --repo moi/mon-app \
+  --config https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-fr.json
+
+# Appliquer sur tous vos repositories
+npx github:j-ned/labelsync-pro --scope all --config .github/labels.json --apply
+
+# Vérifier un fichier de config
+npx github:j-ned/labelsync-pro validate .github/labels.json
+```
+
+Exemple de sortie :
+
+```text
+🏷️ moi/mon-app
+[dry-run] ~ rename  "bug" to "🐛 Fix", color #dc3545, description
+[dry-run] ~ rename  "enhancement" to "✨ Feature", color #198754, description
+[dry-run] + create  "🚑 Hotfix" #b22222
+...
+1 repository, 29 change(s) planned, 0 failed
+```
+
+`--help` liste toutes les options.
+
+## Configuration
+
+```jsonc
+{
+  "$schema": "https://raw.githubusercontent.com/j-ned/labelsync-pro/master/schema/labels.schema.json",
+  "labels": [
+    {
+      "name": "🐛 Fix",               // obligatoire, 50 caractères max
+      "color": "dc3545",              // obligatoire, avec ou sans #
+      "description": "Correctif",     // facultatif, 100 caractères max
+      "aliases": ["bug", "type: bug"] // facultatif, anciens noms à renommer
+    }
+  ],
+  "exclude": ["moi/vieux-repo"]       // facultatif, repositories à ne jamais modifier
+}
+```
+
+- Les noms sont comparés sans tenir compte des majuscules, comme le fait GitHub.
+- L'ancien format (un simple tableau de labels) est toujours accepté.
+- La config est vérifiée avant le moindre appel à l'API, et toutes les erreurs sont affichées en une fois.
+- `config` accepte aussi une URL https, ce qui permet de partager un même fichier entre plusieurs repositories.
+
+### Presets
+
+Deux jeux de 29 labels sont fournis. Ils contiennent des alias qui convertissent les labels créés par défaut par GitHub (`bug`, `enhancement`, `documentation`).
+
+| Preset | Valeur de `config` |
+|---|---|
+| [`presets/emoji-fr.json`](presets/emoji-fr.json) | `https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-fr.json` |
+| [`presets/emoji-en.json`](presets/emoji-en.json) | `https://raw.githubusercontent.com/j-ned/labelsync-pro/master/presets/emoji-en.json` |
+
+![Suite du preset français](screenshot/label_2.png)
+
+## Entrées et sorties
+
+| Entrée | Défaut | Description |
+|---|---|---|
+| `token` | `${{ github.token }}` | Token utilisé pour l'API. Il faut un PAT pour `scope: all` ou `latest`. |
+| `config` | `.github/labels.json` | Chemin dans le repository ou URL https. |
+| `scope` | `current` | `current`, `all` (tous les repositories non archivés de `owner`) ou `latest` (le dernier créé). |
+| `repositories` | | Liste de repositories `owner/name`, séparés par des virgules ou des retours à la ligne. Remplace `scope`. |
+| `owner` | propriétaire du token | Utilisateur ou organisation à parcourir avec `all` ou `latest`. |
+| `exclude` | | Repositories à ne jamais modifier, en plus du `exclude` de la config. |
+| `skip-topic` | `no-labelsync` | Les repositories qui ont ce topic sont ignorés. Laisser vide pour désactiver. |
+| `include-forks` | `false` | Synchroniser aussi les forks. |
+| `prune` | `false` | Supprimer les labels absents de la config. |
+| `dry-run` | `false` | Afficher les changements sans les appliquer. |
+| `concurrency` | `4` | Nombre de repositories traités en parallèle. |
+
+| Sortie | Description |
+|---|---|
+| `repositories` | Nombre de repositories traités. |
+| `changes` | Nombre de changements appliqués, ou prévus en dry run. |
+| `failed` | Nombre de repositories en échec. L'étape échoue si ce n'est pas 0. |
+| `report` | Rapport complet au format JSON. |
+
+## Attention à `prune`
+
+Supprimer un label le retire de toutes les issues et pull requests qui l'avaient. C'est pour ça que `prune` est désactivé par défaut. Avant de l'activer, ajoutez à votre config les labels créés par vos outils, par exemple `dependencies` pour Dependabot, sinon ils seront recréés puis supprimés à chaque passage.
+
+## Passer de la v1 à la v2
+
+La v1 était un workflow réutilisable. La v2 est une action classique, à placer dans un step après `actions/checkout`.
+
+| v1 | v2 |
+|---|---|
+| `uses: j-ned/labelsync-pro/.github/workflows/manage-labels.yml@master` | `uses: j-ned/labelsync-pro@v2` |
+| `mode` | `scope` |
+| `dry_run` | `dry-run` |
+| `labels_path` | `config` |
+| `exclude_path` et `exclude.json` | entrée `exclude`, ou clé `exclude` dans la config |
+| les labels inconnus étaient toujours supprimés | `prune: true` pour garder ce comportement |
+| les forks étaient synchronisés | `include-forks: true` pour garder ce comportement |
+
+Votre ancien `labels.json` fonctionne sans modification.
+
+## Contribuer
+
+Les issues et pull requests sont les bienvenues.
+
+```bash
+npm test            # lance les tests
+npm run validate    # vérifie les presets
+```
+
+## Licence
+
+[MIT](LICENSE)
